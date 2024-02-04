@@ -11,9 +11,6 @@ const MAP_WIDTH: usize = 32;
 const MAP_HEIGHT: usize = 32;
 const FOV: f32 = PI / 3.0;
 
-const STEP_INCREMENT: f32 = 0.1;
-const MAX_DISTANCE: f32 = 64.0;
-
 const MAP: [u8; MAP_WIDTH * MAP_WIDTH] = [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -91,12 +88,10 @@ fn main() {
 
         for x in 0..WIDTH {
             let ray_angle = (player.rotation - FOV / 2.0) + (x as f32) * (FOV / WIDTH as f32);
-            let ray = slow_raycast(
+            let ray = fast_raycast(
                 player.pos_x,
                 player.pos_y,
                 ray_angle,
-                STEP_INCREMENT,
-                MAX_DISTANCE,
                 MAP_WIDTH,
                 MAP_HEIGHT,
                 &MAP,
