@@ -97,20 +97,16 @@ pub fn slow_raycast(
     let (dx, dy) = (theta.cos() * step_increment, theta.sin() * step_increment);
 
     while distance < max_distance {
-        // Calculate the grid position
         let grid_x = x as usize;
         let grid_y = y as usize;
 
-        // Early exit if out of bounds
         if grid_x >= map_width || grid_y >= map_height {
             break;
         }
-        // Check for a hit
         if map[grid_x + grid_y * map_width] == 1 {
             return distance;
         }
 
-        // Move the ray forward
         x += dx;
         y += dy;
         distance += step_increment;
