@@ -1,4 +1,7 @@
-use std::f32::consts::PI;
+use std::{
+    f32::consts::PI,
+    time::{Duration, Instant},
+};
 
 use minifb::{Key, Window, WindowOptions};
 
@@ -7,10 +10,9 @@ const HEIGHT: usize = 1080;
 const MAP_WIDTH: usize = 32;
 const FOV: f32 = PI / 3.0;
 
-const STEP_INCREMENT: f32 = 0.01; // Adjust the step size as needed
+const STEP_INCREMENT: f32 = 0.01;
 const MAX_DISTANCE: f32 = 64.0;
 
-#[allow(dead_code)]
 const MAP: [u8; MAP_WIDTH * MAP_WIDTH] = [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -92,8 +94,8 @@ fn main() {
         panic!("{}", e);
     });
 
-    // Limit to max ~60 fps update rate
-    //window.limit_update_rate(Some(std::time::Duration::from_micros(10000 / 60)));
+    let mut last_fps_time = Instant::now();
+    let mut frame_count = 0;
 
     let mut player = Player::new(4.0, 4.0, 0.0);
 
@@ -119,8 +121,16 @@ fn main() {
             );
         }
 
-        // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+
+        frame_count += 1;
+        let elapsed = last_fps_time.elapsed();
+        if elapsed >= Duration::from_secs(1) {
+            let fps = frame_count;
+            window.set_title(&format!("FPS: {}", fps));
+            frame_count = 0;
+            last_fps_time = Instant::now();
+        }
     }
 }
 
