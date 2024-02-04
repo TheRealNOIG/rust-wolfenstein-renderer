@@ -186,31 +186,35 @@ fn draw_pixel_u32(x: usize, y: usize, color: u32, buffer: &mut [u32]) {
 /// The function divides the line into three sections: ceiling, wall, and floor,
 /// and colors each section accordingly. It automatically adjusts for the screen height
 /// and ensures that the drawing does not exceed the screen bounds.
+
 fn draw_line(
     x: usize,
-    height: usize,
+    wall_height: usize,
     ceiling_color: rgba,
     wall_color: rgba,
     floor_color: rgba,
     buffer: &mut [u32],
 ) {
-    let wall = wall_color.convert_to_u32();
-    let ceiling = ceiling_color.convert_to_u32();
-    let floor = floor_color.convert_to_u32();
+    let wall_color_u32 = wall_color.convert_to_u32();
+    let ceiling_color_u32 = ceiling_color.convert_to_u32();
+    let floor_color_u32 = floor_color.convert_to_u32();
 
-    let clamped_height = height.min(HEIGHT);
-    let half_height_diff = (HEIGHT.saturating_sub(clamped_height)) / 2;
+    let wall_start = HEIGHT.saturating_sub(wall_height) / 2;
+    let wall_end = wall_start + wall_height;
 
-    for y in 0..HEIGHT {
-        let color = if y < half_height_diff {
-            ceiling
-        } else if y >= half_height_diff + clamped_height {
-            floor
-        } else {
-            wall
-        };
+    // Ceiling
+    for y in 0..wall_start {
+        buffer[y * WIDTH + x] = ceiling_color_u32;
+    }
 
-        draw_pixel_u32(x, y, color, buffer);
+    // Wall
+    for y in wall_start..std::cmp::min(wall_end, HEIGHT) {
+        buffer[y * WIDTH + x] = wall_color_u32;
+    }
+
+    // Floor
+    for y in wall_end..HEIGHT {
+        buffer[y * WIDTH + x] = floor_color_u32;
     }
 }
 
