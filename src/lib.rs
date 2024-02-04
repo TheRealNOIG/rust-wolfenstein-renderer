@@ -29,11 +29,13 @@ fn draw_pixel_u32(x: usize, y: usize, color: u32, buffer_width: usize, buffer: &
 ///
 /// # Parameters:
 /// - `x`: The x-coordinate of the line to draw.
-/// - `height`: The height of the wall section to draw.
-/// - `ceiling_color`: The color of the ceiling section.
-/// - `wall_color`: The color of the wall section.
-/// - `floor_color`: The color of the floor section.
-/// - `buffer`: A mutable reference to the screen buffer where pixels are drawn.
+/// - `wall_height`: The height of the wall section to draw.
+/// - `ceiling_color`: The color of the ceiling section as an `rgba` struct.
+/// - `wall_color`: The color of the wall section as an `rgba` struct.
+/// - `floor_color`: The color of the floor section as an `rgba` struct.
+/// - `buffer_width`: The width of the screen buffer.
+/// - `buffer_height`: The height of the screen buffer.
+/// - `buffer`: A mutable reference to the screen buffer (array of `u32` representing pixels).
 ///
 /// The function divides the line into three sections: ceiling, wall, and floor,
 /// and colors each section accordingly. It automatically adjusts for the screen height
@@ -72,6 +74,10 @@ pub fn draw_line(
 /// - `start_x`: The starting x-coordinate of the ray.
 /// - `start_y`: The starting y-coordinate of the ray.
 /// - `theta`: The angle of the ray in radians.
+/// - `step_increment`: The increment for each step of the ray.
+/// - `max_distance`: The maximum distance the ray can travel.
+/// - `map_width`: The width of the 2D grid map.
+/// - `map_height`: The height of the 2D grid map.
 /// - `map`: A reference to the 2D grid map, represented as a linear array.
 ///
 /// # Returns:
