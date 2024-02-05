@@ -1,4 +1,9 @@
-use std::cmp::{max, min};
+use std::{
+    cmp::{max, min},
+    fs::File,
+};
+
+use png::{Decoder, Reader, Transformations};
 
 #[allow(non_camel_case_types)]
 #[derive(Debug, Copy, Clone)]
@@ -162,7 +167,6 @@ pub fn fast_raycast(
     };
 
     let mut side;
-
     while map_x >= 0 && map_x < map_width as isize && map_y >= 0 && map_y < map_height as isize {
         if ray_x < ray_y {
             ray_x += delta_dist_x;
@@ -188,5 +192,26 @@ pub fn fast_raycast(
     }
 
     f32::MAX
+}
+
+// https://github.com/emoon/rust_minifb/blob/ef07f55834d711a88676f011f96f97aae98f3be2/examples/image.rs
+pub fn load_image(path: &str) -> (Reader<File>, Vec<u32>) {
+    let mut decoder = Decoder::new(File::open(path).unwrap());
+
+    decoder.set_transformations(Transformations::ALPHA);
+    let mut reader = decoder.read_info().unwrap();
+
+    let mut image = vec![0u32; reader.output_buffer_size()];
+
+    let mut u8_buffer = unsafe {
+        std::slice::from_raw_parts_mut(
+            image.as_mut_ptr() as *mut u8,
+            image.len() * std::mem::size_of::<u32>(),
+        )
+    };
+
+    reader.next_frame(&mut u8_buffer).unwrap();
+
+    (reader, image)
 }
 

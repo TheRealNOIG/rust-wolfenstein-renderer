@@ -83,6 +83,8 @@ fn main() {
     let ceiling_color = rgba::new(0, 0, 155, 255);
     let floor_color = rgba::new(155, 0, 0, 255);
 
+    let (reader, image) = load_image("assets/box.png");
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         move_player(&mut player, &window);
 
@@ -108,6 +110,12 @@ fn main() {
                 HEIGHT,
                 &mut buffer,
             );
+        }
+
+        for x in 0..reader.info().width as usize {
+            for y in 0..reader.info().height as usize {
+                buffer[x + y * WIDTH] = image[x + y * reader.info().width as usize];
+            }
         }
 
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
