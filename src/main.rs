@@ -1,6 +1,7 @@
 use mini_test::*;
 use minifb::{Key, Window, WindowOptions};
 use std::{
+    cmp::min,
     f32::consts::PI,
     time::{Duration, Instant},
 };
@@ -90,7 +91,7 @@ fn main() {
 
         for x in 0..WIDTH {
             let ray_angle = (player.rotation - FOV / 2.0) + (x as f32) * (FOV / WIDTH as f32);
-            let ray = fast_raycast(
+            let (ray, uv) = fast_raycast(
                 player.pos_x,
                 player.pos_y,
                 ray_angle,
@@ -98,18 +99,31 @@ fn main() {
                 MAP_HEIGHT,
                 &MAP,
             );
+            let testx = uv * reader.info().width as f32;
             let height = ((HEIGHT as f32) / ray * 2.00) as usize;
 
-            draw_line(
-                x,
-                height,
-                ceiling_color,
-                wall_color,
-                floor_color,
-                WIDTH,
-                HEIGHT,
-                &mut buffer,
-            );
+            let ceiling_color_u32 = ceiling_color.convert_to_u32();
+            let floor_color_u32 = floor_color.convert_to_u32();
+
+            let wall_start = HEIGHT.saturating_sub(height) / 2;
+            let wall_end = wall_start + height;
+
+            for y in 0..wall_start {
+                buffer[y * WIDTH + x] = ceiling_color_u32;
+            }
+            for y in wall_start..min(wall_end, HEIGHT) {
+                let mut wall_y = y;
+                if height > HEIGHT {
+                    wall_y = wall_y + (height - HEIGHT) / 2;
+                }
+                let testy = ((wall_y as f32 - wall_start as f32) / height as f32)
+                    * reader.info().height as f32;
+                buffer[y * WIDTH + x] =
+                    image[testy as usize * reader.info().width as usize + testx as usize];
+            }
+            for y in wall_end..HEIGHT {
+                buffer[y * WIDTH + x] = floor_color_u32;
+            }
         }
 
         for x in 0..reader.info().width as usize {
@@ -161,3 +175,4 @@ fn move_player(player: &mut Player, window: &Window) {
         }
     }
 }
+

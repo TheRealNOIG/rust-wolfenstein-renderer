@@ -1,3 +1,4 @@
+use core::f32;
 use std::{
     cmp::{max, min},
     fs::File,
@@ -20,6 +21,15 @@ impl rgba {
     #[inline]
     pub fn convert_to_u32(self) -> u32 {
         ((self.a as u32) << 24) | ((self.r as u32) << 16) | ((self.g as u32) << 8) | (self.b as u32)
+    }
+    pub fn from_u32(color: u32) -> rgba {
+        // Extract each component by shifting and masking
+        let a = ((color >> 24) & 0xFF) as u8; // Shift right 24 bits and mask with 0xFF to get alpha
+        let r = ((color >> 16) & 0xFF) as u8; // Shift right 16 bits and mask with 0xFF to get red
+        let g = ((color >> 8) & 0xFF) as u8; // Shift right 8 bits and mask with 0xFF to get green
+        let b = (color & 0xFF) as u8; // Mask with 0xFF to get blue
+
+        rgba::new(r, g, b, a)
     }
 }
 
@@ -142,7 +152,7 @@ pub fn fast_raycast(
     map_width: usize,
     map_height: usize,
     map: &[u8],
-) -> f32 {
+) -> (f32, f32) {
     let mut map_x = start_x as isize;
     let mut map_y = start_y as isize;
 
@@ -184,14 +194,16 @@ pub fn fast_raycast(
 
         if map[(map_x as usize) + (map_y as usize) * map_width] == 1 {
             if side == 0 {
-                return ray_x - delta_dist_x;
+                let perp_wall_dis = ray_x - delta_dist_x;
+                return (perp_wall_dis, (start_y + perp_wall_dis * dir_y).fract());
             } else {
-                return ray_y - delta_dist_y;
+                let perp_wall_dis = ray_y - delta_dist_y;
+                return (perp_wall_dis, (start_x + perp_wall_dis * dir_x).fract());
             }
         }
     }
 
-    f32::MAX
+    (f32::MAX, f32::MAX)
 }
 
 // https://github.com/emoon/rust_minifb/blob/ef07f55834d711a88676f011f96f97aae98f3be2/examples/image.rs
